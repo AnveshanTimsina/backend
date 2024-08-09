@@ -1,0 +1,489 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 15.7 (Homebrew)
+-- Dumped by pg_dump version 15.7 (Homebrew)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: transaction_type; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.transaction_type AS ENUM (
+    'bought',
+    'sold'
+);
+
+
+ALTER TYPE public.transaction_type OWNER TO postgres;
+
+--
+-- Name: type; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.type AS ENUM (
+    'buyer',
+    'seller'
+);
+
+
+ALTER TYPE public.type OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: cart_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cart_table (
+    cart_id integer NOT NULL,
+    product_id integer,
+    no_of_products integer NOT NULL,
+    user_id integer
+);
+
+
+ALTER TABLE public.cart_table OWNER TO postgres;
+
+--
+-- Name: favorite_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.favorite_table (
+    favorite_id integer NOT NULL,
+    user_id integer,
+    product_id integer
+);
+
+
+ALTER TABLE public.favorite_table OWNER TO postgres;
+
+--
+-- Name: favorite_table_favorite_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.favorite_table_favorite_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.favorite_table_favorite_id_seq OWNER TO postgres;
+
+--
+-- Name: favorite_table_favorite_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.favorite_table_favorite_id_seq OWNED BY public.favorite_table.favorite_id;
+
+
+--
+-- Name: product_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.product_table (
+    product_id integer NOT NULL,
+    product_name character varying(50) NOT NULL,
+    product_description text,
+    unit_price numeric(10,2) NOT NULL,
+    stock_quantity integer,
+    seller_id integer,
+    CONSTRAINT product_table_stock_quantity_check CHECK ((stock_quantity >= 0))
+);
+
+
+ALTER TABLE public.product_table OWNER TO postgres;
+
+--
+-- Name: product_table_product_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.product_table_product_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.product_table_product_id_seq OWNER TO postgres;
+
+--
+-- Name: product_table_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.product_table_product_id_seq OWNED BY public.product_table.product_id;
+
+
+--
+-- Name: review_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.review_table (
+    review_id integer NOT NULL,
+    product_id integer,
+    rating integer,
+    comment text,
+    user_id integer,
+    transaction_id integer,
+    review_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT review_table_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
+);
+
+
+ALTER TABLE public.review_table OWNER TO postgres;
+
+--
+-- Name: review_table_review_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.review_table_review_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.review_table_review_id_seq OWNER TO postgres;
+
+--
+-- Name: review_table_review_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.review_table_review_id_seq OWNED BY public.review_table.review_id;
+
+
+--
+-- Name: transaction_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.transaction_table (
+    transaction_id integer NOT NULL,
+    transaction_amount numeric(10,2) NOT NULL,
+    product_id integer,
+    transaction_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    no_of_products integer,
+    buyer_id integer,
+    seller_id integer
+);
+
+
+ALTER TABLE public.transaction_table OWNER TO postgres;
+
+--
+-- Name: transaction_table_transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.transaction_table_transaction_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.transaction_table_transaction_id_seq OWNER TO postgres;
+
+--
+-- Name: transaction_table_transaction_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.transaction_table_transaction_id_seq OWNED BY public.cart_table.cart_id;
+
+
+--
+-- Name: transaction_table_transaction_id_seq1; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.transaction_table_transaction_id_seq1
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.transaction_table_transaction_id_seq1 OWNER TO postgres;
+
+--
+-- Name: transaction_table_transaction_id_seq1; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.transaction_table_transaction_id_seq1 OWNED BY public.transaction_table.transaction_id;
+
+
+--
+-- Name: user_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.user_table (
+    user_id integer NOT NULL,
+    username character varying(50) NOT NULL,
+    email character varying(100) NOT NULL,
+    password_hash text NOT NULL,
+    phone bigint NOT NULL,
+    first_name character varying(50) NOT NULL,
+    last_name character varying(50) NOT NULL,
+    type public.type NOT NULL
+);
+
+
+ALTER TABLE public.user_table OWNER TO postgres;
+
+--
+-- Name: user_table_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.user_table_user_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_table_user_id_seq OWNER TO postgres;
+
+--
+-- Name: user_table_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.user_table_user_id_seq OWNED BY public.user_table.user_id;
+
+
+--
+-- Name: cart_table cart_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart_table ALTER COLUMN cart_id SET DEFAULT nextval('public.transaction_table_transaction_id_seq'::regclass);
+
+
+--
+-- Name: favorite_table favorite_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.favorite_table ALTER COLUMN favorite_id SET DEFAULT nextval('public.favorite_table_favorite_id_seq'::regclass);
+
+
+--
+-- Name: product_table product_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.product_table ALTER COLUMN product_id SET DEFAULT nextval('public.product_table_product_id_seq'::regclass);
+
+
+--
+-- Name: review_table review_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.review_table ALTER COLUMN review_id SET DEFAULT nextval('public.review_table_review_id_seq'::regclass);
+
+
+--
+-- Name: transaction_table transaction_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction_table ALTER COLUMN transaction_id SET DEFAULT nextval('public.transaction_table_transaction_id_seq1'::regclass);
+
+
+--
+-- Name: user_table user_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_table ALTER COLUMN user_id SET DEFAULT nextval('public.user_table_user_id_seq'::regclass);
+
+
+--
+-- Name: favorite_table favorite_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.favorite_table
+    ADD CONSTRAINT favorite_table_pkey PRIMARY KEY (favorite_id);
+
+
+--
+-- Name: product_table product_name; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.product_table
+    ADD CONSTRAINT product_name UNIQUE (product_name);
+
+
+--
+-- Name: product_table product_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.product_table
+    ADD CONSTRAINT product_table_pkey PRIMARY KEY (product_id);
+
+
+--
+-- Name: product_table product_table_product_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.product_table
+    ADD CONSTRAINT product_table_product_name_key UNIQUE (product_name);
+
+
+--
+-- Name: review_table review_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.review_table
+    ADD CONSTRAINT review_table_pkey PRIMARY KEY (review_id);
+
+
+--
+-- Name: cart_table transaction_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart_table
+    ADD CONSTRAINT transaction_table_pkey PRIMARY KEY (cart_id);
+
+
+--
+-- Name: transaction_table transaction_table_pkey1; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction_table
+    ADD CONSTRAINT transaction_table_pkey1 PRIMARY KEY (transaction_id);
+
+
+--
+-- Name: user_table user_table_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_table
+    ADD CONSTRAINT user_table_email_key UNIQUE (email);
+
+
+--
+-- Name: user_table user_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_table
+    ADD CONSTRAINT user_table_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: user_table user_table_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_table
+    ADD CONSTRAINT user_table_username_key UNIQUE (username);
+
+
+--
+-- Name: cart_table cart_table_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart_table
+    ADD CONSTRAINT cart_table_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_table(user_id);
+
+
+--
+-- Name: favorite_table favorite_table_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.favorite_table
+    ADD CONSTRAINT favorite_table_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product_table(product_id);
+
+
+--
+-- Name: favorite_table favorite_table_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.favorite_table
+    ADD CONSTRAINT favorite_table_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_table(user_id);
+
+
+--
+-- Name: product_table product_table_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.product_table
+    ADD CONSTRAINT product_table_user_id_fkey FOREIGN KEY (seller_id) REFERENCES public.user_table(user_id);
+
+
+--
+-- Name: review_table review_table_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.review_table
+    ADD CONSTRAINT review_table_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product_table(product_id);
+
+
+--
+-- Name: review_table review_table_transaction_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.review_table
+    ADD CONSTRAINT review_table_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transaction_table(transaction_id);
+
+
+--
+-- Name: review_table review_table_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.review_table
+    ADD CONSTRAINT review_table_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_table(user_id);
+
+
+--
+-- Name: transaction_table transaction_table_buyer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction_table
+    ADD CONSTRAINT transaction_table_buyer_id_fkey FOREIGN KEY (buyer_id) REFERENCES public.user_table(user_id);
+
+
+--
+-- Name: cart_table transaction_table_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart_table
+    ADD CONSTRAINT transaction_table_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product_table(product_id);
+
+
+--
+-- Name: transaction_table transaction_table_product_id_fkey1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction_table
+    ADD CONSTRAINT transaction_table_product_id_fkey1 FOREIGN KEY (product_id) REFERENCES public.product_table(product_id);
+
+
+--
+-- Name: transaction_table transaction_table_seller_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction_table
+    ADD CONSTRAINT transaction_table_seller_id_fkey FOREIGN KEY (seller_id) REFERENCES public.user_table(user_id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
