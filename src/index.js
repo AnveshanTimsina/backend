@@ -45,5 +45,5 @@ const transactionRouter = require("./routes/transaction");
 app.use("/transaction", transactionRouter);
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port: ${port}`);
 });
