@@ -9,11 +9,11 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
 router.post("/", async (req, res) => {
+  // console.log("1");
   try {
     const { first_name, last_name, type, email, phone, username, password } =
       req.body;
     const password_hash = await bcrypt.hash(password, 10);
-
     if (
       !first_name ||
       !last_name ||
