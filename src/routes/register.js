@@ -9,7 +9,7 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
 router.post("/", async (req, res) => {
-  // console.log("1");
+  console.log("i am inside register");
   try {
     const { first_name, last_name, type, email, phone, username, password } =
       req.body;
@@ -78,6 +78,10 @@ router.post("/", async (req, res) => {
     client.release();
   } catch (err) {
     console.error("Error signing in.");
+    res.json({
+      success: false,
+      message: err.message || "Failed to register user.",
+    });
   }
 });
 
