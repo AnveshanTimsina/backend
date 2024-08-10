@@ -15,22 +15,16 @@ app.get("/", (req, res) => {
 });
 
 const loginRouter = require("./routes/login");
-// app.use("/:uid/login", loginRouter);
 app.use("/login", loginRouter);
 
 const userRouter = require("./routes/user");
 app.use("/user", userRouter);
 
 const registerRouter = require("./routes/register");
-// app.use("/:uid/register", registerRouter);
 app.use("/register", registerRouter);
 
-// const userRouter = require("./routes/user");
-// app.use("/:uid/user", userRouter);
-// app.use("/user", userRouter);
-
 const productRouter = require("./routes/product");
-app.use("/product", productRouter); //product maa uid haalera kun seller ko product ho tyo seller le login garesi dekhaaidina milcha
+app.use("/product", productRouter);
 
 const cartRouter = require("./routes/cart");
 app.use("/cart", cartRouter);
